@@ -41,13 +41,14 @@ void print_instruction() {
 }
 
 int main() {
-    BigInt_const_size bi1("111");
-    std::cout << bi1.size() << bi1.to_string();
-    std::cout << bi1.additional_code() << std::endl;
+    BigInt_const_size bi1("123");
+    std::cout << bi1 << std::endl;
+    BigInt_const_size bi2("100");
+    std::cout << bi2 << std::endl;
+    bi1 += bi2;
+    std::cin >> bi1;
+    std::cout << "res: " << bi1;
 
-    BigInt_const_size bi2("-999999999");
-    std::cout << bi2.size() << " " << bi2.to_string() << std::endl;
-    std::cout << bi2.additional_code() << std::endl;
 
     BigInt_const_size bi;
     BigInt_const_size::Funcs command_id = BigInt_const_size::EXIT;

@@ -24,7 +24,11 @@ public:
     typedef enum Funcs {
         EXIT,
         SIZE,
-        COPY_ARRAY,
+        TO_STRING,
+        ADDITION,
+        SUBTRACTING,
+        MULTIPLY_10,
+        DIVIDE_10,
     } Funcs;
 
     // constructors
@@ -78,14 +82,22 @@ public:
     [[nodiscard]] size_t size() const;
     [[nodiscard]] std::string to_string() const;
     // перегрузка оператора >>
+    friend std::istream & operator>>(std::istream &, BigInt_const_size &);
     // перегрузка оператора <<
+    friend std::ostream & operator<<(std::ostream &, const BigInt_const_size &);
     [[nodiscard]] BigInt_const_size additional_BI() const;
     [[nodiscard]] std::string additional_code() const;
     // перегрузка оператора +
+    BigInt_const_size& operator+=(const BigInt_const_size & bi);
     // перегрузка оператора -
+    BigInt_const_size& operator-=(const BigInt_const_size & bi);
     // деление на 10
+    void devision_by_10();
     // умножение на 10
+    void multiplication_with_10();
 };
 
+BigInt_const_size operator+(const BigInt_const_size&, const BigInt_const_size&);
+BigInt_const_size operator-(const BigInt_const_size&, const BigInt_const_size&);
 
 #endif //LAB2_SEM3_BIGINT_CONST_SIZE_H

@@ -7,4 +7,5 @@
 #include "BigInt.h"
 
 int read_int();
+
 #endif //LAB2_SEM3_INTERACTION_H
