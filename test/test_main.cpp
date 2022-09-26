@@ -39,7 +39,7 @@ TEST(CONST_methods, add_code) {
     BigInt_const_size bi2("-999999999");
     ASSERT_EQ(bi2.size(), 9);
     ASSERT_EQ(bi2.to_string(), "-999999999");
-    ASSERT_EQ(bi2.additional_code(), "+1");
+    ASSERT_EQ(bi2.additional_code(), "-1");
 }
 
 TEST(CONST_methods, devision_by_10) {
@@ -99,6 +99,11 @@ TEST(CONST_overloaded_operators, plus_ass) {
     bi1 += -210;
     EXPECT_EQ(bi1.size(), 1);
     EXPECT_EQ(bi1.to_string(), "-2");
+    bi1 = std::string("999999999");
+    ASSERT_ANY_THROW(bi1 += bi1);
+    bi1 = -999999999;
+    BigInt_const_size bi2 = 999999999;
+    ASSERT_ANY_THROW(bi1 -= bi2);
 }
 
 TEST(CONST_overloaded_operators, plus) {
@@ -134,6 +139,47 @@ TEST(CONST_overloaded_operators, minus) {
     bi1 = bi2 - 15;
     EXPECT_EQ(bi1.size(), 3);
     EXPECT_EQ(bi1.to_string(), "+105");
+}
+
+TEST(CONST_overloaded_operators, increment) {
+    BigInt_const_size bi1 = 0;
+    bi1++;
+    EXPECT_EQ(bi1.size(), 1);
+    EXPECT_EQ(bi1.to_string(), "+1");
+    ++bi1;
+    EXPECT_EQ(bi1.size(), 1);
+    EXPECT_EQ(bi1.to_string(), "+2");
+    BigInt_const_size bi2 = (++bi1)++;
+    EXPECT_EQ(bi2.size(), 1);
+    EXPECT_EQ(bi2.to_string(), "+3");
+    EXPECT_EQ(bi1.size(), 1);
+    EXPECT_EQ(bi1.to_string(), "+4");
+
+    ASSERT_ANY_THROW(++BigInt_const_size(999999999));
+    ASSERT_ANY_THROW(BigInt_const_size(999999999)++);
+}
+
+TEST(CONST_overloaded_operators, decrement) {
+    BigInt_const_size bi1 = 0;
+    bi1--;
+    EXPECT_EQ(bi1.size(), 1);
+    EXPECT_EQ(bi1.to_string(), "-1");
+    --bi1;
+    EXPECT_EQ(bi1.size(), 1);
+    EXPECT_EQ(bi1.to_string(), "-2");
+    BigInt_const_size bi2 = (--bi1)--;
+    EXPECT_EQ(bi2.size(), 1);
+    EXPECT_EQ(bi2.to_string(), "-3");
+    EXPECT_EQ(bi1.size(), 1);
+    EXPECT_EQ(bi1.to_string(), "-4");
+
+    ASSERT_ANY_THROW(--BigInt_const_size(-999999999));
+    ASSERT_ANY_THROW(BigInt_const_size(-999999999)--);
+}
+
+TEST(CONST_methods, special_test) {
+    BigInt_const_size A = 100;
+    BigInt_const_size B = 50;
 }
 
 int main(int argc, char **argv) {

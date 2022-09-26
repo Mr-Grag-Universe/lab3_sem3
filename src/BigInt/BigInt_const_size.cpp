@@ -21,7 +21,8 @@ std::string BigInt_const_size::to_string() const {
 BigInt_const_size BigInt_const_size::additional_BI() const {
     BigInt_const_size bi;
     bi.length = length;
-    bi.arr[0] = arr[0];
+    bi.arr[0] = (length == 1 && !arr[MAX_SIZE - 1]) ? 0 : arr[0];
+
     if (!arr[0]) {
         memcpy(bi.arr+1, arr+1, (MAX_SIZE-1) * sizeof(char));
         return bi;
@@ -30,13 +31,6 @@ BigInt_const_size BigInt_const_size::additional_BI() const {
         bi.arr[i] = 9-arr[i];
     }
     size_t i = 1;
-    while (bi.arr[i] == 0 && i < MAX_SIZE)
-        ++i;
-    bi.length = MAX_SIZE-i;
-    if (!(bi.length)) {
-        bi.arr[0] = 0;
-        bi.length = 1;
-    }
     if (arr[0]) {
         unsigned char buf = 1;
         unsigned char sum = 0;
@@ -45,6 +39,14 @@ BigInt_const_size BigInt_const_size::additional_BI() const {
             bi.arr[i] = sum % 10;
             buf = sum / 10;
         }
+    }
+    i = 1;
+    while (bi.arr[i] == 0 && i < MAX_SIZE)
+        ++i;
+    bi.length = MAX_SIZE-i;
+    if (!(bi.length)) {
+        bi.arr[0] = 0;
+        bi.length = 1;
     }
     return bi;
 }
@@ -74,7 +76,7 @@ void BigInt_const_size::multiplication_with_10() {
 }
 
 // перегрузка оператора +
-BigInt_const_size& BigInt_const_size::operator+=(const BigInt_const_size & bi) {
+BigInt_const_size& BigInt_const_size::operator+=(const BigInt_const_size bi) {
     BigInt_const_size a = this->additional_BI();
     BigInt_const_size b = bi.additional_BI();
     unsigned char buf = 0;
@@ -85,9 +87,12 @@ BigInt_const_size& BigInt_const_size::operator+=(const BigInt_const_size & bi) {
         res.arr[i] = sum % 10;
         buf = sum / 10;
     }
+    size_t i = 1;
+    while (res.arr[i] == 0 && i < MAX_SIZE)
+        ++i;
     if (a.arr[0]) {
         if (b.arr[0]) {
-            if (buf)
+            if (!buf || (buf==1 && (0 == MAX_SIZE-i)))
                 throw std::runtime_error("you try to create too large number");
             res.arr[0] = 1;
         } else {
@@ -110,7 +115,7 @@ BigInt_const_size& BigInt_const_size::operator+=(const BigInt_const_size & bi) {
             res.arr[0] = 0;
         }
     }
-    size_t i = 1;
+    i = 1;
     while (res.arr[i] == 0 && i < MAX_SIZE)
         ++i;
     res.length = MAX_SIZE-i;
@@ -131,10 +136,13 @@ BigInt_const_size operator+(const BigInt_const_size& a, const BigInt_const_size&
 }
 
 // перегрузка оператора -=
-BigInt_const_size& BigInt_const_size::operator-=(const BigInt_const_size & bi) {
+BigInt_const_size& BigInt_const_size::operator-=(const BigInt_const_size bi) {
     BigInt_const_size _copy = bi;
-    _copy.arr[0] = !_copy.arr[0];
-    return *this+=_copy;
+    if (bi.length == 1 && !bi.arr[MAX_SIZE-1])
+        _copy.arr[0] = 0;
+    else
+        _copy.arr[0] = !_copy.arr[0];
+    return *this += _copy;
 }
 BigInt_const_size operator-(const BigInt_const_size& a, const BigInt_const_size& b) {
     BigInt_const_size copy = a;
@@ -152,4 +160,27 @@ std::istream & operator>>(std::istream & istream, BigInt_const_size & bi) {
 // перегрузка оператора <<
 std::ostream & operator<<(std::ostream & ostream, const BigInt_const_size & bi) {
     return ostream << bi.to_string();
+}
+
+// префикс
+BigInt_const_size& BigInt_const_size::operator++() {
+    *this += 1;
+    return *this;
+}
+// постфикс
+BigInt_const_size BigInt_const_size::operator++(int) {
+    BigInt_const_size copy = *this;
+    ++*this;
+    return copy;
+}
+// префикс
+BigInt_const_size& BigInt_const_size::operator--() {
+    *this -= 1;
+    return *this;
+}
+// постфикс
+BigInt_const_size BigInt_const_size::operator--(int) {
+    BigInt_const_size copy = *this;
+    --*this;
+    return copy;
 }

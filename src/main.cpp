@@ -41,13 +41,8 @@ void print_instruction() {
 }
 
 int main() {
-    BigInt_const_size bi1("123");
-    std::cout << bi1 << std::endl;
-    BigInt_const_size bi2("100");
-    std::cout << bi2 << std::endl;
-    bi1 += bi2;
-    std::cin >> bi1;
-    std::cout << "res: " << bi1;
+    BigInt_const_size bi1 = 0;
+    bi1--;
 
 
     BigInt_const_size bi;

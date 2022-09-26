@@ -64,14 +64,6 @@ public:
             arr[MAX_SIZE+i-length-1] = s[i]-'0';
     }
 
-    // copy-constructor
-    BigInt_const_size(const BigInt_const_size &bi) : length(bi.length) {
-        std::memcpy(arr, bi.arr, MAX_SIZE * sizeof(char));
-    }
-
-    //destructor
-    ~BigInt_const_size() = default;
-
     // assignment operator for my Ints
     BigInt_const_size & operator=(BigInt_const_size bi) {
         swap(bi);
@@ -88,13 +80,23 @@ public:
     [[nodiscard]] BigInt_const_size additional_BI() const;
     [[nodiscard]] std::string additional_code() const;
     // перегрузка оператора +
-    BigInt_const_size& operator+=(const BigInt_const_size & bi);
+    BigInt_const_size& operator+=(const BigInt_const_size bi);
     // перегрузка оператора -
-    BigInt_const_size& operator-=(const BigInt_const_size & bi);
+    BigInt_const_size& operator-=(const BigInt_const_size bi);
     // деление на 10
     void devision_by_10();
     // умножение на 10
     void multiplication_with_10();
+    // префикс-постфикс инкримент
+    // префикс
+    BigInt_const_size& operator++();
+    // постфикс
+    BigInt_const_size operator++(int);
+    // префикс-постфикс декримент
+    // префикс
+    BigInt_const_size& operator--();
+    // постфикс
+    BigInt_const_size operator--(int);
 };
 
 BigInt_const_size operator+(const BigInt_const_size&, const BigInt_const_size&);
