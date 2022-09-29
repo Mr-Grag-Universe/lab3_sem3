@@ -74,8 +74,20 @@ void BigInt_const_size::multiplication_with_10() {
         ++length;
     arr[MAX_SIZE-1] = 0;
 }
+BigInt_const_size BigInt_const_size::operator!() const {
+    BigInt_const_size copy = *this;
+    if (length == MAX_SIZE-1)
+        throw std::runtime_error("you try to do this number too big");
+    std::memmove(copy.arr + MAX_SIZE - length-1, copy.arr + MAX_SIZE - length, length * sizeof(char));
+    // возможны проблемки при MAX_SIZE == 2
+    if (length != 1 || arr[MAX_SIZE-2])
+        ++copy.length;
+    copy.arr[MAX_SIZE-1] = 0;
+    return copy;
+}
 
-// перегрузка оператора +
+
+// перегрузка оператора +=
 BigInt_const_size& BigInt_const_size::operator+=(const BigInt_const_size bi) {
     BigInt_const_size a = this->additional_BI();
     BigInt_const_size b = bi.additional_BI();

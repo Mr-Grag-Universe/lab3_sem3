@@ -14,6 +14,37 @@ bool execute_command(BigInt_const_size::Funcs id, BigInt_const_size &bi) {
             case BigInt_const_size::EXIT:
                 return false;
             case BigInt_const_size::SIZE:
+                std::cout << "current size of your number is " << bi.size() << "!\n";
+                return true;
+            case BigInt_const_size::TO_STRING:
+                std::cout << "your number now is " << bi.to_string() << "!\n";
+                return true;
+            case BigInt_const_size::ADDITION: {
+                std::cout << "enter your number for addition: ";
+                int x = read_int();
+                bi += x;
+                return true;
+            }
+            case BigInt_const_size::SUBTRACTING: {
+                std::cout << "enter your number for subtraction: ";
+                int x = read_int();
+                bi -= x;
+                return true;
+            }
+            case BigInt_const_size::MULTIPLY_10: {
+                bi = !bi;
+                return true;
+            }
+            case BigInt_const_size::DIVIDE_10: {
+                bi.devision_by_10();
+                return true;
+            }
+            case BigInt_const_size::INCREMENT: {
+                bi++;
+                return true;
+            }
+            case BigInt_const_size::DECREMENT:
+                bi--;
                 return true;
             default:
                 return true;
@@ -27,13 +58,13 @@ bool execute_command(BigInt_const_size::Funcs id, BigInt_const_size &bi) {
 void print_instruction() {
     std::cout << "0 - exit" << std::endl;
     std::cout << "1 - size" << std::endl;
-    std::cout << "2 - integer" << std::endl;
-    std::cout << "3 - " << std::endl;
-    std::cout << "4 - " << std::endl;
-    std::cout << "5 - " << std::endl;
-    std::cout << "6 - " << std::endl;
-    std::cout << "7 - " << std::endl;
-    std::cout << "8 - " << std::endl;
+    std::cout << "2 - print" << std::endl;
+    std::cout << "3 - add int" << std::endl;
+    std::cout << "4 - subtract int" << std::endl;
+    std::cout << "5 - multiply with 10" << std::endl;
+    std::cout << "6 - divide by 10" << std::endl;
+    std::cout << "7 - increment" << std::endl;
+    std::cout << "8 - decrement" << std::endl;
     std::cout << "9 - " << std::endl;
     std::cout << "10 - " << std::endl;
     std::cout << "11" << std::endl;
@@ -41,11 +72,8 @@ void print_instruction() {
 }
 
 int main() {
-    BigInt_const_size bi1 = 0;
-    bi1--;
-
-
     BigInt_const_size bi;
+    std::cin >> bi;
     BigInt_const_size::Funcs command_id = BigInt_const_size::EXIT;
     print_instruction();
     do {

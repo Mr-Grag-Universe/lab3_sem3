@@ -21,6 +21,7 @@ protected:
         std::swap(arr, bi.arr);
     }
 public:
+    /// possible operations with BI
     typedef enum Funcs {
         EXIT,
         SIZE,
@@ -29,6 +30,8 @@ public:
         SUBTRACTING,
         MULTIPLY_10,
         DIVIDE_10,
+        INCREMENT,
+        DECREMENT,
     } Funcs;
 
     // constructors
@@ -71,22 +74,33 @@ public:
     }
 
     // public methods
+    /// returns len of BI in symbols except sign
     [[nodiscard]] size_t size() const;
+    /// convert number to string equivalent with +/- sign
     [[nodiscard]] std::string to_string() const;
     // перегрузка оператора >>
+    /// read BI from istream
     friend std::istream & operator>>(std::istream &, BigInt_const_size &);
     // перегрузка оператора <<
+    /// print BI in ostream
     friend std::ostream & operator<<(std::ostream &, const BigInt_const_size &);
+    /// return additional BI
     [[nodiscard]] BigInt_const_size additional_BI() const;
+    /// return string version of additional BI (with +/-)
     [[nodiscard]] std::string additional_code() const;
     // перегрузка оператора +
     BigInt_const_size& operator+=(const BigInt_const_size bi);
     // перегрузка оператора -
     BigInt_const_size& operator-=(const BigInt_const_size bi);
     // деление на 10
+    /// divide BI by 10. return nothing
     void devision_by_10();
     // умножение на 10
+    /// multiply BI with 10. return nothing
     void multiplication_with_10();
+    // перегруженное умножение на 10
+    /// return BI multiplied with 10. doesn't change BI
+    BigInt_const_size operator!() const;
     // префикс-постфикс инкримент
     // префикс
     BigInt_const_size& operator++();

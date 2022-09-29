@@ -180,6 +180,8 @@ TEST(CONST_overloaded_operators, decrement) {
 TEST(CONST_methods, special_test) {
     BigInt_const_size A = 100;
     BigInt_const_size B = 50;
+    BigInt_const_size C = !(A + A - B) - B;
+    EXPECT_EQ(C.to_string(), "+" + std::to_string((100*2-50)*10-50));
 }
 
 int main(int argc, char **argv) {
