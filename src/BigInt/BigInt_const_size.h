@@ -20,6 +20,9 @@ protected:
         std::swap(length, bi.length);
         std::swap(arr, bi.arr);
     }
+
+private:
+    static bool is_integer(std::string s);
 public:
     /// possible operations with BI
     typedef enum Funcs {
@@ -50,8 +53,8 @@ public:
     }
     BigInt_const_size(const std::string & x) {
         // нужна проверка строки
-        if (x.empty())
-            return;
+        if (!is_integer(x))
+            throw std::invalid_argument("your line to conversion in BI is not integer");
         size_t l = (x[0] == '-') ? x.size()-1 : x.size();
 
         if (l >= MAX_SIZE)

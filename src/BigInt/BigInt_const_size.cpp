@@ -18,6 +18,28 @@ std::string BigInt_const_size::to_string() const {
     return s;
 }
 
+bool BigInt_const_size::is_integer(std::string s) {
+    if (s.empty())
+        return false;
+    char sign = s[0];
+    bool sign_is_real = false;
+    if (sign == '+' || sign == '-') {
+        if (s.size() == 1)
+            return false;
+        sign_is_real = true;
+    }
+    else if (std::isdigit(sign))
+        sign_is_real = false;
+    else
+        return false;
+
+    for (size_t i = sign_is_real; i < s.size(); ++i)
+        if (!std::isdigit(s[i]))
+            return false;
+
+    return true;
+}
+
 BigInt_const_size BigInt_const_size::additional_BI() const {
     BigInt_const_size bi;
     bi.length = length;
