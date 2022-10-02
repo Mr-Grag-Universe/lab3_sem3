@@ -82,9 +82,20 @@ BigInt BigInt::additional_BI() const {
         }
     }
     i = 1;
-    while (bi.arr[i] == 0 && i <= length)
+    while (bi.arr[i] == 0 && i < length)
         ++i;
-    bi.length = length-i-1;
+    // bi.length = length-i-1;
+    try {
+        auto * copy = new unsigned char [length+2-i];
+        std::memcpy(copy+1, bi.arr+i, length-i+1);
+        copy[0] = bi.arr[0];
+        delete[] bi.arr;
+        bi.arr = copy;
+    } catch (std::bad_alloc & ba) {
+        std::cerr << ba.what() << std::endl;
+        throw ba;
+    }
+    bi.length = bi.length-i+1;
     if (!(bi.length)) {
         bi.arr[0] = 0;
         bi.length = 1;
@@ -101,6 +112,7 @@ std::string BigInt::additional_code() const {
 BigInt& BigInt::operator+=(const BigInt & bi) {
     BigInt a = this->additional_BI();
     BigInt b = bi.additional_BI();
+    std::cout << a << " " << b << std::endl;
     unsigned char buf = 0;
     unsigned char sum = 0;
     BigInt res;
@@ -113,16 +125,22 @@ BigInt& BigInt::operator+=(const BigInt & bi) {
     }
 
     long long int delta = a.length - b.length;
+    unsigned char def = 0;
+    if (delta > 0)
+        def = b.arr[0] ? 9 : 0;
+    else
+        def = a.arr[0] ? 9 : 0;
+
     for (size_t i = res.length; i > 0; --i) {
         if (delta > 0) {
-            if (i-delta < 0) {
-                sum = a.arr[i] + buf + 9;
+            if (i-delta <= 0) {
+                sum = a.arr[i] + buf + def;
             } else {
                 sum = a.arr[i] + b.arr[i-delta] + buf;
             }
         } else if (delta < 0) {
-            if (i+delta < 0) {
-                sum = b.arr[i] + buf + 9;
+            if (i+delta <= 0) {
+                sum = b.arr[i] + buf + def;
             } else {
                 sum = a.arr[i+delta] + b.arr[i] + buf;
             }
@@ -184,6 +202,17 @@ BigInt& BigInt::operator+=(const BigInt & bi) {
     i = 1;
     while (res.arr[i] == 0 && i <= res.length)
         ++i;
+    try {
+        auto * copy = new unsigned char [res.length+2-i];
+        std::memcpy(copy+1, res.arr+i, res.length-i+1);
+        copy[0] = res.arr[0];
+        delete[] res.arr;
+        res.arr = copy;
+    } catch (std::bad_alloc & ba) {
+        std::cerr << ba.what() << std::endl;
+        throw ba;
+    }
+    std::cout << res;
     res.length = res.length+1-i;
     if (!(res.length)) {
         res.arr[0] = 0;
@@ -204,7 +233,7 @@ BigInt operator+(const BigInt& a, const BigInt& b) {
 // перегрузка оператора -=
 BigInt& BigInt::operator-=(const BigInt & bi) {
     BigInt _copy = bi;
-    if (bi.length == 1 && !bi.arr[length])
+    if (bi.length == 1 && !bi.arr[1])
         _copy.arr[0] = 0;
     else
         _copy.arr[0] = !_copy.arr[0];
@@ -241,12 +270,15 @@ BigInt BigInt::operator--(int) {
 
 // деление на 10
 void BigInt::devision_by_10() {
-    if (length == 1 && arr[1] == 0)
+    if (length == 1) {
+        arr[1] = 0;
+        arr[0] = 0;
         return;
-    length = (length==1) ? 1 : length-1;
+    }
+    --length;
     try {
         auto * copy = new unsigned char [length+1];
-        std::memcpy(copy, arr, length * sizeof(char));
+        std::memcpy(copy, arr, (length+1) * sizeof(char));
         delete[] arr;
         arr = copy;
     } catch (std::bad_alloc & ba) {
@@ -265,7 +297,7 @@ void BigInt::multiplication_with_10() {
         return;
     try {
         auto * copy = new unsigned char [length+2];
-        std::memmove(copy, arr, (length+1) * sizeof(char));
+        std::memmove(copy, arr, (length+1) * sizeof(unsigned char));
         delete[] arr;
         arr = copy;
     } catch (std::bad_alloc & ba) {
@@ -279,4 +311,31 @@ BigInt BigInt::operator!() const {
     BigInt copy = *this;
     copy.multiplication_with_10();
     return copy;
+}
+
+bool operator<(const BigInt& a, const BigInt& b) {
+    std::string s1 = a.to_string();
+    std::string s2 = b.to_string();
+    if (s1[0] != s2[0])
+        return (s1[0] == '-');
+
+    if (s1.size() != s2.size()) {
+        if (s1[0] == '-')
+            return s1.size() > s2.size();
+        else
+            return s1.size() < s2.size();
+    }
+
+    for (size_t i = 0; i < s1.size(); ++i) {
+        if (s1[i] != s2[i]) {
+            if (s1[0] == '-')
+                return s1[i] > s2[i];
+            else
+                return s1[i] < s2[i];
+        }
+    }
+    return false;
+}
+bool operator>(const BigInt& a, const BigInt& b) {
+    return b < a;
 }

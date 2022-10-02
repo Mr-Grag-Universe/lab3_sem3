@@ -35,13 +35,11 @@ TEST(DINAMIC_methods, add_code) {
     BigInt bi1("111");
     ASSERT_EQ(bi1.size(), 3);
     ASSERT_EQ(bi1.to_string(), "+111");
-    //ASSERT_EQ(bi1.additional_code(), "+111");
+    ASSERT_EQ(bi1.additional_code(), "+111");
     BigInt bi2("-999999999");
     ASSERT_EQ(bi2.size(), 9);
     ASSERT_EQ(bi2.to_string(), "-999999999");
-    //ASSERT_EQ(bi2.additional_code(), "-1");
-    bi1.~BigInt();
-    bi2.~BigInt();
+    ASSERT_EQ(bi2.additional_code(), "-1");
 }
 
 TEST(DINAMIC_methods, devision_by_10) {
@@ -77,9 +75,9 @@ TEST(DINAMIC_methods, multiplication_with_10) {
     BigInt bi2("-999999999");
     ASSERT_EQ(bi2.size(), 9);
     ASSERT_EQ(bi2.to_string(), "-999999999");
-    ASSERT_ANY_THROW(bi2.multiplication_with_10());
-    ASSERT_EQ(bi2.size(), 9);
-    ASSERT_EQ(bi2.to_string(), "-999999999");
+    ASSERT_NO_THROW(bi2.multiplication_with_10());
+    ASSERT_EQ(bi2.size(), 10);
+    ASSERT_EQ(bi2.to_string(), "-9999999990");
     BigInt bi3("1");
     bi3.multiplication_with_10();
     ASSERT_EQ(bi3.size(), 2);
@@ -102,10 +100,10 @@ TEST(DINAMIC_overloaded_operators, plus_ass) {
     EXPECT_EQ(bi1.size(), 1);
     EXPECT_EQ(bi1.to_string(), "-2");
     bi1 = std::string("999999999");
-    ASSERT_ANY_THROW(bi1 += bi1);
+    ASSERT_NO_THROW(bi1 += bi1);
     bi1 = -999999999;
     BigInt bi2 = 999999999;
-    ASSERT_ANY_THROW(bi1 -= bi2);
+    ASSERT_NO_THROW(bi1 -= bi2);
 }
 
 TEST(DINAMIC_overloaded_operators, plus) {
@@ -157,8 +155,8 @@ TEST(DINAMIC_overloaded_operators, increment) {
     EXPECT_EQ(bi1.size(), 1);
     EXPECT_EQ(bi1.to_string(), "+4");
 
-    ASSERT_ANY_THROW(++BigInt(999999999));
-    ASSERT_ANY_THROW(BigInt(999999999)++);
+    ASSERT_NO_THROW(++BigInt(999999999));
+    ASSERT_NO_THROW(BigInt(999999999)++);
 }
 
 TEST(DINAMIC_overloaded_operators, decrement) {
@@ -175,8 +173,12 @@ TEST(DINAMIC_overloaded_operators, decrement) {
     EXPECT_EQ(bi1.size(), 1);
     EXPECT_EQ(bi1.to_string(), "-4");
 
-    ASSERT_ANY_THROW(--BigInt(-999999999));
-    ASSERT_ANY_THROW(BigInt(-999999999)--);
+    ASSERT_NO_THROW(--BigInt(-999999999));
+    ASSERT_NO_THROW(BigInt(-999999999)--);
+    bi1 = --BigInt(-999999999);
+    bi2 = BigInt(-999999999)--;
+    EXPECT_EQ(bi1.to_string(), "-1000000000");
+    EXPECT_EQ(bi2.to_string(), "-999999999");
 }
 
 TEST(DINAMIC_methods, special_test) {

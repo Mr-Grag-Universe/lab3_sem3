@@ -5,6 +5,7 @@
 #include <cmath>
 #include "BigInt.h"
 #include "BigInt_const_size.h"
+#include "BigInt.h"
 #include "interaction.h"
 
 
@@ -72,6 +73,15 @@ void print_instruction() {
 }
 
 int main() {
+    BigInt bi1("123");
+    bi1 += std::string("100");
+    std::cout << bi1 << std::endl;
+    bi1 += -15;
+    std::cout << bi1 << std::endl;
+    bi1 += -210;
+    std::cout << bi1 << std::endl;
+
+
     BigInt_const_size bi;
     std::cin >> bi;
     BigInt_const_size::Funcs command_id = BigInt_const_size::EXIT;
