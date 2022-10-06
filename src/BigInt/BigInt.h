@@ -20,6 +20,7 @@ protected:
 
 private:
     static bool is_integer(const std::string & s);
+    bool empty() const;
 public:
     /// possible operations with BI
     typedef enum Funcs {
@@ -131,6 +132,8 @@ public:
     BigInt& operator--();
     // постфикс
     BigInt operator--(int);
+
+    friend bool operator<(const BigInt&, const BigInt&);
 };
 
 BigInt operator+(const BigInt&, const BigInt&);

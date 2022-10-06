@@ -176,13 +176,12 @@ TEST(DINAMIC_overloaded_operators, decrement) {
 
     ASSERT_NO_THROW(--BigInt(-999999999));
     ASSERT_NO_THROW(BigInt(-999999999)--);
-    bi1 = BigInt(-999999999);
-    std::cout << bi1 << std::endl;
-    --bi1;
-    std::cout << bi1 << std::endl;
-    // bi2 = BigInt(-999999999)--;
+    bi1 = --BigInt(-999999999);
+    //std::cout << bi1 << std::endl;
+    //std::cout << bi1 << std::endl;
+    bi2 = BigInt(-999999999)--;
     EXPECT_EQ(bi1.to_string(), "-1000000000");
-    // EXPECT_EQ(bi2.to_string(), "-999999999");
+    EXPECT_EQ(bi2.to_string(), "-999999999");
 }
 
 TEST(DINAMIC_methods, special_test) {

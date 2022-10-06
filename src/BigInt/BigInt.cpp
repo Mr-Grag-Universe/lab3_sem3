@@ -18,6 +18,10 @@ std::string BigInt::to_string() const {
     return s;
 }
 
+bool BigInt::empty() const {
+    return (length == 0 || arr == nullptr);
+}
+
 bool BigInt::is_integer(const std::string & s) {
     if (s.empty())
         return false;
@@ -51,7 +55,7 @@ std::ostream & operator<<(std::ostream & ostream, const BigInt & bi) {
 }
 
 BigInt BigInt::additional_BI() const {
-    if (arr == nullptr || !length)
+    if (this->empty())
         throw std::invalid_argument("this function can't be called by empty object");
     BigInt bi;
     try{
@@ -108,137 +112,13 @@ std::string BigInt::additional_code() const {
     return bi.to_string();
 }
 
-// перегрузка оператора +
-/*
+// перегрузка оператора +=
 BigInt& BigInt::operator+=(const BigInt & bi) {
+    if (this->empty() || bi.empty())
+        throw std::invalid_argument("this operation cannot be called with empty arguments");
     BigInt a = this->additional_BI();
     BigInt b = bi.additional_BI();
-    std::cout << a << " " << b << std::endl;
-    unsigned char buf = 0;
-    unsigned char sum = 0;
-    BigInt res;
-    size_t M = std::max(bi.length, length);
-    try {
-        res.arr = new unsigned char [M+1];
-    } catch (std::bad_alloc & ba) {
-        std::cerr << ba.what() << std::endl;
-        throw ba;
-    }
-
-    long long int delta = a.length - b.length;
-    unsigned char def = 0;
-    if (delta > 0)
-        def = b.arr[0] ? 9 : 0;
-    else
-        def = a.arr[0] ? 9 : 0;
-
-    size_t m = std::max(a.length, b.length);
-    for (size_t i = m; i > 0; --i) {
-        if (delta > 0) {
-            if (i-delta <= 0) {
-                sum = a.arr[i] + buf + def;
-            } else {
-                sum = a.arr[i] + b.arr[i-delta] + buf;
-            }
-        } else if (delta < 0) {
-            if (i+delta <= 0) {
-                sum = b.arr[i] + buf + def;
-            } else {
-                sum = a.arr[i+delta] + b.arr[i] + buf;
-            }
-        } else {
-            sum = a.arr[i] + b.arr[i] + buf;
-        }
-        res.arr[M-m+i] = sum % 10;
-        buf = sum / 10;
-    }
-
-    size_t i = 1;
-    while (res.arr[i] == 0 && i <= res.length)
-        ++i;
-
-    try {
-        if (a.arr[0]) {
-            if (b.arr[0]) {
-                // отрицательное переполнение
-                if (buf==1 && (0 == res.length+1-i)) {
-                    ++res.length;
-                    res.arr[0] = 9-!buf;
-                    auto * copy = new unsigned char [res.length+1];
-                    std::memcpy(copy+1, arr, res.length);
-                    delete[] res.arr;
-                    res.arr = copy;
-                } else if (!buf) {
-                    ++res.length;
-                    res.arr[0] = 9-!buf;
-                    auto * copy = new unsigned char [res.length+1];
-                    std::memcpy(copy+1, arr, res.length);
-                    delete[] res.arr;
-                    res.arr = copy;
-                }
-                res.arr[0] = 1;
-            } else {
-                if (buf) {
-                    res.arr[0] = 0;
-                } else {
-                    res.arr[0] = 1;
-                }
-            }
-        } else {
-            if (b.arr[0]) {
-                if (buf) {
-                    res.arr[0] = 0;
-                } else {
-                    res.arr[0] = 1;
-                }
-            } else {
-                // положительное переполнение
-                if (buf) {
-                    ++res.length;
-                    res.arr[0] = buf;
-                    auto * copy = new unsigned char [res.length+1];
-                    std::memcpy(copy+1, arr, res.length);
-                    delete[] res.arr;
-                    res.arr = copy;
-                }
-                res.arr[0] = 0;
-            }
-        }
-    } catch (...) {
-        delete[] res.arr;
-        throw std::logic_error("error in \'if\' block of addition");
-    }
-    i = 1;
-    while (res.arr[i] == 0 && i <= res.length)
-        ++i;
-    try {
-        auto * copy = new unsigned char [res.length+2-i];
-        std::memcpy(copy+1, res.arr+i, res.length-i+1);
-        copy[0] = res.arr[0];
-        delete[] res.arr;
-        res.arr = copy;
-    } catch (std::bad_alloc & ba) {
-        std::cerr << ba.what() << std::endl;
-        throw ba;
-    }
-    std::cout << res;
-    res.length = res.length+1-i;
-    if (!(res.length)) {
-        res.arr[0] = 0;
-        res.length = 1;
-    }
-    if (res.arr[0]) {
-        res = res.additional_BI();
-    }
-    *this = res;
-    return *this;
-}
-*/
-
-BigInt& BigInt::operator+=(const BigInt & bi) {
-    BigInt a = this->additional_BI();
-    BigInt b = bi.additional_BI();
-    std::cout << "input to +=: " << a << " " << b << std::endl;
+    // std::cout << "input to +=: " << a << " " << b << std::endl;
     BigInt res;
 
     // инициализируем res.arr
@@ -351,24 +231,39 @@ BigInt& BigInt::operator+=(const BigInt & bi) {
         throw std::logic_error("error in \'if\' block of addition");
     }
 
-    std::cout << "pr result: " << res << std::endl;
+    // std::cout << "pr result: " << res << std::endl;
     if (res.arr[0]) {
         res = res.additional_BI();
     }
 
     *this = res;
-    std::cout << "result: " << res << std::endl;
+    // std::cout << "result: " << res << std::endl;
     return *this;
 }
 
 BigInt operator+(const BigInt& a, const BigInt& b) {
     BigInt copy = a;
-    copy += b;
+    try{
+        copy += b;
+    } catch (std::invalid_argument & ia) {
+        std::cerr << ia.what() << std::endl;
+        throw ia;
+    } catch (std::bad_alloc & ba) {
+        throw ba;
+    } catch (std::logic_error & le) {
+        std::cerr << le.what() << std::endl;
+        throw le;
+    } catch (...) {
+        std::cerr << "something wrong in \'+\' operator" << std::endl;
+        throw std::runtime_error("something wrong in \'+\' operator");
+    }
     return copy;
 }
 
 // перегрузка оператора -=
 BigInt& BigInt::operator-=(const BigInt & bi) {
+    if (this->empty() || bi.empty())
+        throw std::invalid_argument("this operation cannot be called with empty arguments");
     BigInt _copy = bi;
     if (bi.length == 1 && !bi.arr[1])
         _copy.arr[0] = 0;
@@ -407,6 +302,8 @@ BigInt BigInt::operator--(int) {
 
 // деление на 10
 void BigInt::devision_by_10() {
+    if (this->empty())
+        throw std::invalid_argument("this operation cannot be called with empty arguments");
     if (length == 1) {
         arr[1] = 0;
         arr[0] = 0;
@@ -430,6 +327,8 @@ void BigInt::devision_by_10() {
 }
 // умножение на 10
 void BigInt::multiplication_with_10() {
+    if (this->empty())
+        throw std::invalid_argument("this operation cannot be called with empty arguments");
     if (length == 1 && arr[1] == 0)
         return;
     try {
@@ -445,12 +344,16 @@ void BigInt::multiplication_with_10() {
     arr[length] = 0;
 }
 BigInt BigInt::operator!() const {
+    if (this->empty())
+        throw std::invalid_argument("this operation cannot be called with empty arguments");
     BigInt copy = *this;
     copy.multiplication_with_10();
     return copy;
 }
 
 bool operator<(const BigInt& a, const BigInt& b) {
+    if (a.empty() || b.empty())
+        throw std::invalid_argument("empty argument in comparing");
     std::string s1 = a.to_string();
     std::string s2 = b.to_string();
     if (s1[0] != s2[0])
