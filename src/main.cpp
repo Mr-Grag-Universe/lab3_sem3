@@ -73,13 +73,12 @@ void print_instruction() {
 }
 
 int main() {
-    BigInt bi1("123");
-    bi1 += std::string("100");
-    std::cout << bi1 << std::endl;
-    bi1 += -15;
-    std::cout << bi1 << std::endl;
-    bi1 += -210;
-    std::cout << bi1 << std::endl;
+    BigInt bi1 = 0;
+    bi1--;
+    //--bi1;
+    //BigInt bi2 = (--bi1)--;
+    //bi1 = --BigInt(-999999999);
+    std::cout << "bi1: " << bi1.to_string() << std::endl;
 
 
     BigInt_const_size bi;

@@ -83,7 +83,8 @@ public:
 
     // destructor
     ~BigInt() {
-        delete[] arr;
+        if (arr != nullptr)
+            delete[] arr;
     }
 
     // assignment operator for my Ints

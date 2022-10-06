@@ -109,6 +109,7 @@ std::string BigInt::additional_code() const {
 }
 
 // перегрузка оператора +
+/*
 BigInt& BigInt::operator+=(const BigInt & bi) {
     BigInt a = this->additional_BI();
     BigInt b = bi.additional_BI();
@@ -116,9 +117,9 @@ BigInt& BigInt::operator+=(const BigInt & bi) {
     unsigned char buf = 0;
     unsigned char sum = 0;
     BigInt res;
-    res.length = std::max(bi.length, length);
+    size_t M = std::max(bi.length, length);
     try {
-        res.arr = new unsigned char [length+1];
+        res.arr = new unsigned char [M+1];
     } catch (std::bad_alloc & ba) {
         std::cerr << ba.what() << std::endl;
         throw ba;
@@ -131,7 +132,8 @@ BigInt& BigInt::operator+=(const BigInt & bi) {
     else
         def = a.arr[0] ? 9 : 0;
 
-    for (size_t i = res.length; i > 0; --i) {
+    size_t m = std::max(a.length, b.length);
+    for (size_t i = m; i > 0; --i) {
         if (delta > 0) {
             if (i-delta <= 0) {
                 sum = a.arr[i] + buf + def;
@@ -147,7 +149,7 @@ BigInt& BigInt::operator+=(const BigInt & bi) {
         } else {
             sum = a.arr[i] + b.arr[i] + buf;
         }
-        res.arr[i] = sum % 10;
+        res.arr[M-m+i] = sum % 10;
         buf = sum / 10;
     }
 
@@ -159,7 +161,14 @@ BigInt& BigInt::operator+=(const BigInt & bi) {
         if (a.arr[0]) {
             if (b.arr[0]) {
                 // отрицательное переполнение
-                if (!buf || (buf==1 && (0 == res.length+1-i))) {
+                if (buf==1 && (0 == res.length+1-i)) {
+                    ++res.length;
+                    res.arr[0] = 9-!buf;
+                    auto * copy = new unsigned char [res.length+1];
+                    std::memcpy(copy+1, arr, res.length);
+                    delete[] res.arr;
+                    res.arr = copy;
+                } else if (!buf) {
                     ++res.length;
                     res.arr[0] = 9-!buf;
                     auto * copy = new unsigned char [res.length+1];
@@ -224,6 +233,134 @@ BigInt& BigInt::operator+=(const BigInt & bi) {
     *this = res;
     return *this;
 }
+*/
+
+BigInt& BigInt::operator+=(const BigInt & bi) {
+    BigInt a = this->additional_BI();
+    BigInt b = bi.additional_BI();
+    std::cout << "input to +=: " << a << " " << b << std::endl;
+    BigInt res;
+
+    // инициализируем res.arr
+    size_t pr_len = std::max(this->length, bi.length);
+    res.arr = new unsigned char [pr_len+2];
+    memset(res.arr, 0, pr_len+2);
+
+    // допиливаем a и b до нормального вида
+    //=============================
+    size_t a_len = a.length;
+    unsigned char *a_arr = nullptr;
+    unsigned char *b_arr = nullptr;
+    try {
+        a_arr = new unsigned char [pr_len+1];
+        b_arr = new unsigned char [pr_len+1];
+    } catch (std::bad_alloc & ba) {
+        delete[] a_arr;
+        delete[] b_arr;
+        std::cerr << ba.what() << std::endl;
+        throw ba;
+    }
+
+    {
+        if (a.arr[0]) {
+            if (pr_len != length)
+                std::memset(a_arr + 1, 9, pr_len);
+            else
+                std::memset(a_arr + 1, 0, pr_len);
+        }
+        else
+            std::memset(a_arr + 1, 0, pr_len);
+        std::memcpy(a_arr + pr_len - a_len + 1, a.arr+1, a_len);
+        a_arr[0] = a.arr[0];
+    }
+
+    size_t b_len = b.length;
+    {
+        if (b.arr[0])
+            if (bi.length != pr_len)
+                std::memset(b_arr + 1, 9, pr_len);
+            else
+                std::memset(b_arr + 1, 0, pr_len);
+        else
+            std::memset(b_arr + 1, 0, pr_len);
+        std::memmove(b_arr + pr_len - b_len + 1, b.arr+1, b_len);
+        b_arr[0] = b.arr[0];
+    }
+    //=============================
+
+    unsigned char buf = 0;
+    unsigned char sum = 0;
+    // сложение 2 чисел
+    for (size_t i = pr_len; i > 0; --i) {
+        sum = a_arr[i] + b_arr[i] + buf;
+        res.arr[i] = sum % 10;
+        buf = sum / 10;
+    }
+
+    delete[] a_arr;
+    delete[] b_arr;
+
+    try {
+        if (a.arr[0] && b.arr[0]) {
+            if (buf) {
+                // расширить
+                memmove(res.arr+2, res.arr+1, pr_len);
+                res.arr[1] = 9;
+                res.length = pr_len+1;
+            } else {
+                // оставить как есть
+                size_t i = 1;
+                for (; i < pr_len+1 && !res.arr[i]; ++i) {}
+                auto * copy = new unsigned char [pr_len+2-i];
+                memmove(copy+1, res.arr+i, pr_len+1-i);
+                delete[] res.arr;
+                res.arr = copy;
+                res.length = pr_len+1-i;
+            }
+            res.arr[0] = 1;
+        } else if (!(a.arr[0] || b.arr[0])) {
+            if (buf) {
+                // расширить
+                memmove(res.arr+2, res.arr+1, pr_len);
+                res.arr[1] = 1;
+                res.length = pr_len+1;
+            } else {
+                // оставить как есть
+                size_t i = 1;
+                for (; i < pr_len+1 && !res.arr[i]; ++i) {}
+                auto * copy = new unsigned char [pr_len+2-i];
+                memmove(copy+1, res.arr+i, pr_len+1-i);
+                delete[] res.arr;
+                res.arr = copy;
+                res.length = pr_len+1-i;
+            }
+            res.arr[0] = 0;
+        } else {
+            // оставить как есть
+            size_t i = 1;
+            for (; i < pr_len+1 && !res.arr[i]; ++i) {}
+            auto * copy = new unsigned char [pr_len+2-i];
+            memmove(copy+1, res.arr+i, pr_len+1-i);
+            delete[] res.arr;
+            res.arr = copy;
+            res.length = pr_len+1-i;
+            res.arr[0] = !buf;
+        }
+    } catch (...) {
+        delete[] res.arr;
+        throw std::logic_error("error in \'if\' block of addition");
+    }
+
+    std::cout << "pr result: " << res << std::endl;
+    if (res.arr[0]) {
+        res = res.additional_BI();
+    }
+
+    *this = res;
+    std::cout << "result: " << res << std::endl;
+    return *this;
+}
+
 BigInt operator+(const BigInt& a, const BigInt& b) {
     BigInt copy = a;
     copy += b;
@@ -237,7 +374,7 @@ BigInt& BigInt::operator-=(const BigInt & bi) {
         _copy.arr[0] = 0;
     else
         _copy.arr[0] = !_copy.arr[0];
-    return *this += _copy;
+    return (*this += _copy);
 }
 BigInt operator-(const BigInt& a, const BigInt& b) {
     BigInt copy = a;
