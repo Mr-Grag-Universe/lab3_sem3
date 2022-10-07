@@ -2,49 +2,47 @@
 // Created by Stephan on 15.09.2022.
 //
 #include <iostream>
-#include <cmath>
 #include "BigInt.h"
 #include "BigInt_const_size.h"
-#include "BigInt.h"
 #include "interaction.h"
 
 
-bool execute_command(BigInt_const_size::Funcs id, BigInt_const_size &bi) {
+bool execute_command(BigInt::Funcs id, BigInt &bi) {
     try {
         switch (id) {
-            case BigInt_const_size::EXIT:
+            case BigInt::EXIT:
                 return false;
-            case BigInt_const_size::SIZE:
+            case BigInt::SIZE:
                 std::cout << "current size of your number is " << bi.size() << "!\n";
                 return true;
-            case BigInt_const_size::TO_STRING:
+            case BigInt::TO_STRING:
                 std::cout << "your number now is " << bi.to_string() << "!\n";
                 return true;
-            case BigInt_const_size::ADDITION: {
+            case BigInt::ADDITION: {
                 std::cout << "enter your number for addition: ";
                 int x = read_int();
                 bi += x;
                 return true;
             }
-            case BigInt_const_size::SUBTRACTING: {
+            case BigInt::SUBTRACTING: {
                 std::cout << "enter your number for subtraction: ";
                 int x = read_int();
                 bi -= x;
                 return true;
             }
-            case BigInt_const_size::MULTIPLY_10: {
+            case BigInt::MULTIPLY_10: {
                 bi = !bi;
                 return true;
             }
-            case BigInt_const_size::DIVIDE_10: {
+            case BigInt::DIVIDE_10: {
                 bi.devision_by_10();
                 return true;
             }
-            case BigInt_const_size::INCREMENT: {
+            case BigInt::INCREMENT: {
                 bi++;
                 return true;
             }
-            case BigInt_const_size::DECREMENT:
+            case BigInt::DECREMENT:
                 bi--;
                 return true;
             default:
@@ -73,22 +71,31 @@ void print_instruction() {
 }
 
 int main() {
-    BigInt bi1 = 0;
-    bi1--;
-    //--bi1;
-    //BigInt bi2 = (--bi1)--;
-    //bi1 = --BigInt(-999999999);
-    std::cout << "bi1: " << bi1.to_string() << std::endl;
+//    BigInt bi1(BigInt(1000));              // возвращаемое значение функции
+//    BigInt bi2(bi1.additional_BI());   // здесь какая-то оптимизация компилятора (возможно RVO)
+//    bi2 = bi1.additional_BI();          // здесь есть, тк результат функции
+//    bi2 = bi1.additional_BI();          // здесь тоже
 
 
-    BigInt_const_size bi;
-    std::cin >> bi;
-    BigInt_const_size::Funcs command_id = BigInt_const_size::EXIT;
+    BigInt bi;
+    std::cout << "enter your initial integer: ";
+    try {
+        std::cin >> bi;
+    } catch (...) {
+        std::cout << "wrong input" <<std::endl;
+        return 1;
+    }
+    BigInt::Funcs command_id = BigInt::EXIT;
     print_instruction();
     do {
         std::cout << "id of command: ";
         unsigned long long int id = 0;
-        std::cin >> id;
-        command_id = static_cast<BigInt_const_size::Funcs>(id);
+        try{
+            std::cin >> id;
+        } catch (...) {
+            std::cout << "wrong input of command id";
+            continue;
+        }
+        command_id = static_cast<BigInt::Funcs>(id);
     } while (execute_command(command_id, bi));
 }

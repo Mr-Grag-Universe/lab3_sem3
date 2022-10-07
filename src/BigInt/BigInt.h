@@ -20,7 +20,7 @@ protected:
 
 private:
     static bool is_integer(const std::string & s);
-    bool empty() const;
+    [[nodiscard]] bool empty() const;
 public:
     /// possible operations with BI
     typedef enum Funcs {
@@ -36,8 +36,11 @@ public:
     } Funcs;
 
     // constructors
-    BigInt() = default;
+    BigInt() {
+        std::cout << "constructor" << std::endl;
+    }
     BigInt(const long & x) {
+        std::cout << "constructor" << std::endl;
         size_t l = std::to_string(std::abs(x)).length();
 
         length = l;
@@ -48,12 +51,14 @@ public:
             arr[length-i] = y%10;
     }
     BigInt(const std::string & x) {
-        // нужна проверка строки
+        std::cout << "constructor" << std::endl;
+        // проверка строки
         if (!is_integer(x))
             throw std::invalid_argument("your line to conversion in BI is not integer");
-        size_t l = (x[0] == '-') ? x.size()-1 : x.size();
 
+        size_t l = (x[0] == '-') ? x.size()-1 : x.size();
         length = l;
+        // память под массив символов нового числа
         try {
             arr = new unsigned char [length+1];
         } catch (std::bad_alloc & ba) {
@@ -71,6 +76,7 @@ public:
 
     // copy constructor
     BigInt(const BigInt & bi) : length(bi.length) {
+        std::cout << "copy constructor" << std::endl;
         try {
             arr = new unsigned char [length+1];
         } catch (std::bad_alloc & ba) {
@@ -81,18 +87,49 @@ public:
         }
         memmove(arr, bi.arr, (length+1) * sizeof(char));
     }
+    // move constructor
+    BigInt(BigInt && bi)  noexcept : length(bi.length), arr(bi.arr) {
+        std::cout << "move constructor" << std::endl;
+        bi.length = 0;
+        bi.arr = nullptr;
+    }
 
     // destructor
     ~BigInt() {
-        if (arr != nullptr)
-            delete[] arr;
+        std::cout << "destructor" << std::endl;
+        delete[] arr;
     }
 
     // assignment operator for my Ints
+    /*
     BigInt & operator=(BigInt bi) {
         swap(bi);
         return *this;
     }
+    */
+    BigInt & operator=(const BigInt & bi) {
+        std::cout << "assigment" << std::endl;
+        if (&bi == this)
+            return *this;
+        length = bi.length;
+        delete[] arr;
+        arr = new unsigned char [length+1];
+        memcpy(arr, bi.arr, length+1);
+        return *this;
+    }
+    BigInt & operator=(BigInt && bi)  noexcept {
+        std::cout << "move assigment" << std::endl;
+        if (this != &bi) {
+            delete[] arr;
+            this->arr = bi.arr;
+            this->length = bi.length;
+
+            bi.arr = nullptr;
+            bi.length = 0;
+        }
+        return *this;
+    }
+
 
     // public methods
     /// returns len of BI in symbols except sign
@@ -107,7 +144,7 @@ public:
     friend std::ostream & operator<<(std::ostream &, const BigInt &);
     /// return additional BI
     [[nodiscard]] BigInt additional_BI() const;
-    /// return string version of additional BI (with +/-)
+    /// return string version of additional BI (with +/-) without prefix '0's
     [[nodiscard]] std::string additional_code() const;
     // перегрузка оператора +
     BigInt& operator+=(const BigInt & bi);
@@ -140,6 +177,5 @@ BigInt operator+(const BigInt&, const BigInt&);
 BigInt operator-(const BigInt&, const BigInt&);
 bool operator<(const BigInt&, const BigInt&);
 bool operator>(const BigInt&, const BigInt&);
-
 
 #endif //LAB3_SEM3_BIGINT_H

@@ -26,9 +26,17 @@ TEST(DINAMIC_initial_funcs, constructors) {
     ASSERT_EQ(bi3.size(), 2);
     ASSERT_EQ(bi3.to_string(), "+11");
     // ASSERT_ANY_THROW(bi3 = BigInt("1000000000"));
+    std::cout << "hi";
     ASSERT_ANY_THROW(bi3 = BigInt("asdd"));
+
+    BigInt bb = std::move(bi3);
 }
 TEST(CONST_initial_funcs, input) {
+    std::istringstream str("1000");
+    BigInt bi;
+    str >> bi;
+    ASSERT_EQ(bi.size(), 4);
+    ASSERT_EQ(bi.to_string(), "+1000");
 }
 
 TEST(DINAMIC_methods, add_code) {
